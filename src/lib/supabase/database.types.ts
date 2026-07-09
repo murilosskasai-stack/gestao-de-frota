@@ -51,10 +51,17 @@ export type RemanejamentoStatus =
   | "em_transporte"
   | "recebido";
 
+export type Empresa = {
+  id: string;
+  nome: string;
+  created_at: string;
+}
+
 export type Profile = {
   id: string;
   full_name: string;
   role: UserRole;
+  empresa_id: string;
   created_at: string;
 }
 
@@ -68,6 +75,7 @@ export type Obra = {
   data_inicio: string;
   data_fim_prevista: string | null;
   status: ObraStatus;
+  empresa_id: string;
   created_at: string;
   updated_at: string;
 }
@@ -85,6 +93,7 @@ export type Equipamento = {
   status: EquipamentoStatus;
   obra_atual_id: string | null;
   observacoes: string | null;
+  empresa_id: string;
   created_at: string;
   updated_at: string;
 }
@@ -159,6 +168,7 @@ export type PlanoPreventivo = {
   servico: string;
   intervalo_horas: number;
   tipo_equipamento: string | null;
+  empresa_id: string;
   created_at: string;
 }
 
@@ -248,6 +258,7 @@ type Rel = { Relationships: [] };
 export type Database = {
   public: {
     Tables: {
+      empresas: { Row: Empresa; Insert: never; Update: never } & Rel;
       profiles: { Row: Profile; Insert: never; Update: Partial<Profile> } & Rel;
       obras: {
         Row: Obra;
