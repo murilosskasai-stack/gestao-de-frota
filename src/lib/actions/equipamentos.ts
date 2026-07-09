@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/auth";
 import type { EquipamentoStatus } from "@/lib/supabase/database.types";
 
 export async function saveEquipamento(formData: FormData) {
@@ -29,7 +30,10 @@ export async function saveEquipamento(formData: FormData) {
     const { error } = await supabase.from("equipamentos").update(payload).eq("id", id);
     if (error) throw new Error(error.message);
   } else {
-    const { error } = await supabase.from("equipamentos").insert(payload);
+    const { profile } = await requireUser();
+    const { error } = await supabase
+      .from("equipamentos")
+      .insert({ ...payload, empresa_id: profile.empresa_id });
     if (error) throw new Error(error.message);
   }
 
