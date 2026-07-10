@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireModule } from "@/lib/auth";
 import { getEquipamentoDetail } from "@/lib/queries/equipamento";
+import { getApontamentosByEquipamento } from "@/lib/queries/apontamento";
+import { TableShell, TableHead, TableRow } from "@/components/shared/data-table";
 import { BackLink } from "@/components/shared/page-header";
 import { Chip } from "@/components/shared/chip";
 import {
@@ -22,6 +24,7 @@ export default async function EquipamentoFichaPage({
   const { id } = await params;
   const { equipamento: eq, obraNome, movimentacoes, ordensServico } = await getEquipamentoDetail(id);
   if (!eq) notFound();
+  const apontamentos = await getApontamentosByEquipamento(id, 15);
 
   const specs = [
     { k: "Código interno", v: eq.codigo_interno },
@@ -147,6 +150,31 @@ export default async function EquipamentoFichaPage({
             )}
           </div>
         </div>
+      </div>
+
+      <div className="mt-4">
+        <div className="mb-3 text-sm font-bold">Histórico de apontamentos</div>
+        <TableShell>
+          <TableHead
+            columns="1fr 1fr 1fr 1fr 1fr 1.3fr"
+            labels={["Data", "Horím. inicial", "Horím. final", "Trabalhadas", "Ociosas", "Encarregado"]}
+          />
+          {apontamentos.map((a) => (
+            <TableRow columns="1fr 1fr 1fr 1fr 1fr 1.3fr" key={a.id}>
+              <span className="font-mono text-[12px] text-text-muted">{formatDateLong(a.data)}</span>
+              <span className="font-mono text-[12.5px] text-text-muted">{formatNumber(a.horimetro_inicial, 1)}</span>
+              <span className="font-mono text-[12.5px] text-text-muted">{formatNumber(a.horimetro_final, 1)}</span>
+              <span className="font-mono text-[13px] font-bold text-green-fg">{formatNumber(a.horas_trabalhadas, 1)} h</span>
+              <span className="font-mono text-[13px] font-bold text-amber-fg">{formatNumber(a.horas_ociosas, 1)} h</span>
+              <span className="text-[12.5px] text-text-soft">{a.encarregadoNome}</span>
+            </TableRow>
+          ))}
+          {apontamentos.length === 0 ? (
+            <div className="px-5 py-8 text-center text-sm text-text-muted-2">
+              Nenhum apontamento registrado para este equipamento.
+            </div>
+          ) : null}
+        </TableShell>
       </div>
     </div>
   );
